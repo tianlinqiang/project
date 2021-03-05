@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 
+# @{PROJECT_NAME}
+# @Author ：TLQ
+# @Time ：2021/3/5 18:36
+
+# Version:v1.1  #1.改进，排序方式改为降序。 #2.大于5天的数据没有，不能pass，应该返回为0。
+
+
 
 import struct
 import xlwt
@@ -218,7 +225,7 @@ def application_3(datas,time,num,types):   #输出ttl小于n的key，默认n=1d
     for i in datas:
         if i.get("key_ttl") != "-1":
             if time:
-                if int(i.get("key_ttl")) > int(time):
+                if int(i.get("key_ttl")) > int(int(time)*86400):
                     datas_1.append(i)
                 else:
                     pass
@@ -237,12 +244,12 @@ def application_4(datas,key_size,types,num):    #输出key_size大于n的前m个
     datas_1 = []
     for i in datas:
         if key_size:
-            if int(i.get("key_size")) > int(key_size):
+            if int(i.get("key_size")) > int(float(key_size)*1024*1024):
                 datas_1.append(i)
             else:
                 pass
         else:
-            if int(i.get("key_size")) > int(10240):
+            if int(i.get("key_size")) > int(1024*1024):
                 datas_1.append(i)
             else:
                 pass
@@ -255,15 +262,16 @@ def application_5(datas,value_size,types,num):    #输出value_size大于n的前
     datas_1 = []
     for i in datas:
         if value_size:
-            if int(i.get("value_size")) > int(value_size):
+            if int(i.get("value_size")) > int(float(value_size)*1024*1024):
                 datas_1.append(i)
             else:
                 pass
         else:
-            if int(i.get("value_size,")) > int(10240):
+            if int(i.get("value_size,")) > int(1024*1024):
                 datas_1.append(i)
             else:
                 pass
+
     datas = data_update(datas_1,types)
     datas = get_num_data(datas,num)
 
@@ -274,11 +282,46 @@ def get_table(datas):
 
     tb = pt.PrettyTable()
     tb.padding_width = 3
-    tb.field_names = datas[1].keys()
-    for i in datas:
-        tb.add_row(i.values())
-    print tb
+    if len(datas) == 0:
+        tb.field_names = ["key_type","key_ttl","value_size","key","key_size"]
+        print tb
+    else:
+        tb.field_names = datas[0].keys()
+        for i in datas:
+            tb.add_row(i.values())
+        print tb
 
+#def main_1():
+#     usage = """usage: %prog [options] redis-key
+# Examples :
+# %prog user:13423
+# %prog -s localhost -p 6379 user:13423
+# """
+#
+#     parser = OptionParser(usage=usage)
+#     parser.add_option("-s", "--server", dest="host", default="192.168.81.100",
+#                       help="Redis Server hostname. Defaults to 127.0.0.1")
+#     parser.add_option("-p", "--port", dest="port", default=6379, type="int",
+#                       help="Redis Server port. Defaults to 6379")
+#     parser.add_option("-a", "--password", dest="password",
+#                       help="Password to use when connecting to the server")
+#     parser.add_option("-d", "--db", dest="db", default=0,
+#                       help="Database number, defaults to 0")
+
+
+    # (options, args) = parser.parse_args()
+    #print_memory_for_key(redis_key, host=options.host, port=options.port,
+    #db=options.db, password=options.password)
+    # redis=connect_to_redis(host='192.168.81.100', port=6379, db=0, password=None)
+    #
+    # datas = scan_redis(redis, host=options.host, port=options.port, db=options.db, password=options.password)
+    # #get_excel(datas)
+    #
+    # datas_json = json.dumps(datas, sort_keys=False, ensure_ascii=False, indent=4,
+    #                         separators=(',', ': '))
+    # f = open('datas_json', 'w')
+    # f.write(datas_json)
+    # return datas
 
 def get_json_dict(host):
     try:
